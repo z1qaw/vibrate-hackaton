@@ -20,6 +20,8 @@
 {% block userscripts %}
 
 <script>
+
+var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
 roomDetails = {}
 roomSocket = null
 
@@ -32,7 +34,7 @@ async function init(){
     console.log(`ws://${window.location.host}/ws/room/${roomDetails.slug}/`)
     console.log(roomDetails)
     roomSocket = new WebSocket(
-        `ws://${window.location.host}/ws/room/${roomDetails.slug}/`
+        `${ws_scheme}://${window.location.host}/ws/room/${roomDetails.slug}/`
     )
 
     roomSocket.onclose = (e) => {
