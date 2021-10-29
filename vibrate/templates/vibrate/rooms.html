@@ -5,5 +5,159 @@
 {% endblock title %}
 
 {% block content %}
-<h1>No content</h1>
+<h1 class="mt-3">Комнаты</h1>
+
+<div class="ph-item" id='ph-loader'>
+    <div class="ph-row">
+        <div class="ph-col-12 big"></div>
+    </div>
+</div>
+
+<ul class="list-group" id="rooms-container">
+<div class="ph-item">
+    <div class="ph-row">
+        <div class="ph-col-12"></div>
+    </div>
+</div>
+  <div class="ph-row">
+        <div class="ph-col-12"></div>
+    </div>
+</ul>
+
+<div class="action-section mt-3">
+  <button type="button btn-block" class="btn btn-primary" style="width: 100%">Создать комнату</button>
+</div>
+
+<div class="modal fade" id="roomEnterModal" tabindex="-1" aria-labelledby="roomEnterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="roomEnterModalLabel"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="username" class="col-form-label">Ваше имя</label>
+            <input type="text" class="form-control" id="username">
+          </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="button" class="btn btn-primary" id="enter_room_button">Войти</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
+
+{% block userscripts %}
+
+<script>
+
+async function postData(url = '', data = {}, csrf_token=null) {
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrf_token,
+    },
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+    body: JSON.stringify(data)
+  });
+}
+
+function arraysEqual(a1,a2) {
+    return JSON.stringify(a1)==JSON.stringify(a2);
+}
+
+rooms = []
+choosedRoom = null
+roomsContainer = document.querySelector('#rooms-container')
+
+roomEnterModalEl = document.getElementById('roomEnterModal')
+var roomEnterModal = new bootstrap.Modal(roomEnterModalEl, {
+  keyboard: false
+})
+roomEnterModalEl.addEventListener('show.bs.modal', function (event) {
+  var modalTitle = roomEnterModalEl.querySelector('.modal-title')
+  var modalEnterButton = roomEnterModalEl.querySelector('#enter_room_button')
+  var usernameInput = roomEnterModalEl.querySelector('#username')
+  var csrfToken = roomEnterModalEl.querySelector('input[name="csrfmiddlewaretoken"]').getAttribute('value')
+  modalEnterButton.addEventListener('click', (e) => {
+    postData('/api/set_roommember_nickname', {
+      username: usernameInput.value
+    }, csrfToken)
+    window.location.replace(`room/${choosedRoom.slug}`)
+  })
+
+  modalTitle.textContent = 'Войти в комнату ' + choosedRoom.name
+})
+
+async function apiGetRooms() {
+    var response = await fetch('/api/get_rooms')
+    return await response.json()
+}
+
+function setRooms() {
+    var containerChildren = []
+    for (room of rooms) {
+        var roomEl = document.createElement('li')
+        for (className of 'list-group-item d-flex justify-content-between align-items-center'.split(' ')) {
+            roomEl.classList.add(className)
+        }
+        roomEl.innerText += room.name
+        roomEl.setAttribute('roomslug', room.slug)
+
+        var usersCounter = document.createElement('span')
+        for (className of 'badge bg-primary rounded-pill'.split(' ')) {
+            usersCounter.classList.add(className)
+        }
+        usersCounter.innerText += room.current_members.length + ' участников'
+        roomEl.appendChild(usersCounter)
+
+        roomEl.addEventListener('click', (e) => {
+          console.log('target', rooms.filter(r => {return r.slug == e.target.getAttribute('roomslug')}))
+          choosedRoom = rooms.filter(r => {return r.slug == e.target.getAttribute('roomslug')})[0]
+          console.log('choosedRoom', choosedRoom)
+          roomEnterModal.show()
+        })
+
+        containerChildren.push(roomEl)
+    }
+    roomsContainer.textContent = ''
+    for (roomEl of containerChildren) {
+        roomsContainer.appendChild(roomEl)
+        console.log('appendChild')
+    }
+}
+var init = async () => {
+    await apiGetRooms()
+    await setRooms()
+    var phLoader = document.querySelector('#ph-loader')
+    phLoader.style.display = 'none'
+}
+
+init()
+
+setInterval(async () => {
+    var freshRooms = await apiGetRooms()
+    console.log(freshRooms, rooms, arraysEqual(freshRooms, rooms))
+    if (!arraysEqual(freshRooms, rooms)) {
+        console.log('not equel', rooms, freshRooms)
+        rooms = freshRooms
+        setRooms()
+    }
+}, 3000)
+
+
+
+</script>
+
+{% endblock userscripts %}

@@ -1,0 +1,67 @@
+{% extends "vibrate/base.html" %}
+
+{% block title %}
+{{ room.name }} | Vibrate
+{% endblock title %}
+
+{% block content %}
+<h1 id="title"></h1>
+<ul class="list-group">
+  <li class="list-group-item" aria-current="true">User 1</li>
+  <li class="list-group-item">User 2</li>
+  <li class="list-group-item">User 3</li>
+</ul>
+<div class="btn-section mt-3">
+<button type="button" class="btn btn-outline-primary btn-lg" id="send_vibration" style="width: 100%">Хочу сказать</button>
+</div>
+
+{% endblock content %}
+
+{% block userscripts %}
+
+<script>
+roomDetails = {}
+roomSocket = null
+
+
+async function init(){
+    var response = await fetch(`/api/get_room_details/{{ room.slug }}/`)
+    roomDetails = await response.json()
+    console.log(roomDetails)
+    titleEl = document.querySelector('#title').innerText = roomDetails.name
+    console.log(`ws://${window.location.host}/ws/room/${roomDetails.slug}/`)
+    console.log(roomDetails)
+    roomSocket = new WebSocket(
+        `ws://${window.location.host}/ws/room/${roomDetails.slug}/`
+    )
+
+    roomSocket.onclose = (e) => {
+        console.log('on_close', e)
+    }
+    roomSocket.onmessage = (e) => {
+        const data = JSON.parse(e.data)
+        console.log('on_message', data)
+        if (data.message) {
+            console.log(data.message)
+        }
+    }
+}
+    init()
+var sendVibrationButton = document.querySelector('#send_vibration')
+sendVibrationButton.addEventListener('click', () => {
+    console.log('send', {
+            'user_id': '{{ room_user.id }}',
+            'action': 'vibrate',
+        })
+    roomSocket.send(JSON.stringify(
+        {
+            'type': 'message',
+            'user_id': '{{ room_user.id }}',
+            'action': 'vibrate',
+            'room_slug': roomDetails.slug,
+        }
+    ))
+})
+</script>
+
+{% endblock userscripts %}
