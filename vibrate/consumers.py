@@ -25,6 +25,11 @@ def get_user(username):
 
 
 @sync_to_async
+def get_user_by_id(id):
+    return User.objects.get(id=id)
+
+
+@sync_to_async
 def get_room_member(user):
     return RoomMember.objects.get(user=user)
 
@@ -42,6 +47,11 @@ def join_member_to_room(member, room):
 @sync_to_async
 def leave_member_from_room(member, room):
     return room.disconnect_user(member)
+
+
+@sync_to_async
+def get_room_member_by_id(id):
+    return RoomMember.objects.get(id=id)
 
 
 class RoomConsumer(AsyncWebsocketConsumer):
@@ -63,7 +73,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'user_connect',
-                'user_id': user.id,
+                'user_id': rm.id,
                 'room_slug': room.slug,
             }
         )
@@ -81,7 +91,7 @@ class RoomConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'user_disconnect',
-                'user_id': user.id,
+                'user_id': rm.id,
                 'room_slug': room.slug,
             }
         )
@@ -110,11 +120,12 @@ class RoomConsumer(AsyncWebsocketConsumer):
     async def action(self, event):
         action = event['action']
         user_id = event['user_id']
+        rm = await get_room_member_by_id(user_id)
 
         await self.send(text_data=json.dumps(
             {
                 'action': action,
-                'user_id': user_id
+                'user_id': rm.id
             }
         ))
         print(event)

@@ -59,9 +59,6 @@ def get_room_members(request, room_slug):
 
 @api_view(['GET'])
 def get_rooms(request):
-    # if request.method == 'POST':
-    #     return Response({"message": "Got some data!", "data": request.data})
-
     return Response(RoomSerializer(Room.objects.all(), many=True).data)
 
 
@@ -73,3 +70,10 @@ def set_roommember_nickname(request):
     roommember_of_user.save()
     print('set nickname', request.data['username'])
     return Response(status=200)
+
+
+@api_view(['GET'])
+def get_me(request):
+    user = request.user
+    roommember_of_user = RoomMember.objects.get(user=user)
+    return Response(RoomMembersSerializer(roommember_of_user).data)
