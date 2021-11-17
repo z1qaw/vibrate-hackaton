@@ -9,6 +9,7 @@ djangorestframework = "*"
 channels = "*"
 channels-redis = "*"
 gunicorn = "*"
+whitenoise = "*"
 
 [dev-packages]
 autopep8 = "*"
