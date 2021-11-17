@@ -18,9 +18,8 @@ class Room(models.Model):
     name = models.CharField('Name', max_length=255)
     current_members = models.ManyToManyField(
         to=RoomMember, related_name='room', blank=True)
-    is_active = models.BooleanField(
-        verbose_name='Is room active', default=True)
     slug = models.CharField('Slug', max_length=24, unique=True, null=True)
+    is_private = models.BooleanField('Is room private', default=False)
 
     def save(self, *args, **kwargs):
         try:

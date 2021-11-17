@@ -6,6 +6,20 @@ var selfUser = {}
 var roomSlug = ''
 
 
+function copyToClipboard(elementId) {
+
+
+  var aux = document.createElement("input");
+  aux.setAttribute("value", document.getElementById(elementId).innerHTML);
+  document.body.appendChild(aux);
+  aux.select();
+  document.execCommand("copy");
+
+  document.body.removeChild(aux);
+
+}
+
+
 async function init() {
   var locationPathnameArr = window.location.pathname.split('/')
   roomSlug = locationPathnameArr[locationPathnameArr.length - 1]
@@ -18,6 +32,18 @@ async function init() {
   roomSocket = new WebSocket(
     `${ws_scheme}://${window.location.host}/ws/room/${roomDetails.slug}/`
   )
+
+  copyLinkButton = document.querySelector('#copy-link-button')
+  new bootstrap.Popover(
+    copyLinkButton,
+    {
+      animation: true,
+      content: 'Link copied!'
+    }
+  )
+  copyLinkButton.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(window.location.href)
+  })
 
   roomSocket.onclose = (e) => {
     console.log('on_close', e)
@@ -32,9 +58,37 @@ async function init() {
       case 'user_disconnect':
         updateUsersList()
         break
+      case 'vibrate':
+        vibrationQueue.push(data.user_id)
     }
   }
 }
+
+var vibrationQueue = []
+
+
+
+function showUserVibration(userId) {
+  const userElement = document.querySelector(`li.user-card[userId="${userId}"]`)
+  userElement.animate(
+    [
+      { backgroundColor: 'rgb(255, 255, 255)' },
+      { backgroundColor: 'rgb(37, 127, 211, 0.3)' },
+      { backgroundColor: 'rgb(255, 255, 255)' },
+
+    ],
+    {
+      duration: 180,
+      iterations: 2
+    }
+  )
+}
+
+setInterval(async () => {
+  if (vibrationQueue.length > 0) {
+    showUserVibration(vibrationQueue.shift())
+  }
+}, 500)
 
 async function updateUsersList() {
   var response = await fetch(`/api/get_room_members/${roomSlug}`)
@@ -44,6 +98,7 @@ async function updateUsersList() {
   data.map((user) => {
     singleUserElWrapper = document.createElement('li')
     singleUserElWrapper.classList.add('user-element')
+    singleUserElWrapper.setAttribute('userId', user.id)
     singleUserElWrapper.innerText = user.room_nickname || 'Аноним'
     if (user.id === selfUser.id) {
       selfUserSpan = document.createElement('span')
@@ -54,7 +109,7 @@ async function updateUsersList() {
       selfUserSpan.id = 'self-user-span'
       singleUserElWrapper.appendChild(selfUserSpan)
     }
-    for (className of 'list-group-item d-flex align-items-center'.split(' ')) {
+    for (className of 'user-card list-group-item d-flex align-items-center'.split(' ')) {
       singleUserElWrapper.classList.add(className)
     }
     usersElWrappers.appendChild(singleUserElWrapper)

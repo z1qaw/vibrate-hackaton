@@ -58,8 +58,13 @@ def get_room_members(request, room_slug):
 
 
 @api_view(['GET'])
-def get_rooms(request):
-    return Response(RoomSerializer(Room.objects.all(), many=True).data)
+def get_public_rooms(request):
+    return Response(RoomSerializer(Room.objects.filter(is_private=False), many=True).data)
+
+
+@api_view(['GET'])
+def get_private_rooms(request):
+    return Response(RoomSerializer(Room.objects.filter(is_private=True), many=True).data)
 
 
 @api_view(['POST'])

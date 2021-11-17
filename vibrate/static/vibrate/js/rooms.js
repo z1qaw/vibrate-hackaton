@@ -48,8 +48,8 @@ roomEnterModalEl.addEventListener('show.bs.modal', function (event) {
   modalTitle.textContent = 'Войти в комнату ' + choosedRoom.name
 })
 
-async function apiGetRooms() {
-  var response = await fetch('/api/get_rooms')
+async function apiGetPublicRooms() {
+  var response = await fetch('/api/get_public_rooms')
   return await response.json()
 }
 
@@ -57,7 +57,7 @@ function setRooms() {
   var containerChildren = []
   for (room of rooms) {
     var roomEl = document.createElement('li')
-    for (className of 'list-group-item d-flex justify-content-between align-items-center'.split(' ')) {
+    for (className of 'list-group-item d-flex justify-content-between align-items-center room-card'.split(' ')) {
       roomEl.classList.add(className)
     }
     roomEl.innerText += room.name
@@ -87,14 +87,14 @@ function setRooms() {
 }
 
 var init = async () => {
-  rooms = await apiGetRooms()
+  rooms = await apiGetPublicRooms()
   setRooms()
 }
 
 init()
 
 setInterval(async () => {
-  var freshRooms = await apiGetRooms()
+  var freshRooms = await apiGetPublicRooms()
   if (!arraysEqual(freshRooms, rooms)) {
     console.log('not equel', rooms, freshRooms)
     rooms = freshRooms
