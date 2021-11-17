@@ -1,0 +1,38 @@
+#self-user-span {
+  margin-top: 4px;
+  margin-left: 4px;
+}
+
+@keyframes blink {  
+  0% { background-color: rgb(67, 157, 241); }
+  100% { background-color: #fff; }
+}
+
+@-webkit-keyframes blink {
+  0% { background-color: rgb(67, 157, 241); }
+  100% { background-color: #fff; }
+}
+
+.blink {
+  -webkit-animation: blink 1s 2 linear;
+  -moz-animation: blink 1s 2 linear;
+  animation: blink 1s 2 linear;
+}
+
+#share-button-wrapper {
+  padding-top: 42px;
+  padding-left: 10px; 
+}
+
+#copy-link-button {
+  opacity: 60%;
+  cursor: pointer;
+}
+
+#copy-link-button:hover {
+  opacity: 80%;
+}
+
+#copy-link-button:active {
+  opacity: 100%;
+}
