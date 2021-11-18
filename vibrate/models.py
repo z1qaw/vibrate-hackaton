@@ -15,11 +15,11 @@ class RoomMember(models.Model):
 class Room(models.Model):
     owner = models.ForeignKey(
         to=RoomMember, on_delete=models.CASCADE, related_name='owned_room')
-    name = models.CharField('Name', max_length=255)
+    name = models.CharField('Название', max_length=255)
     current_members = models.ManyToManyField(
         to=RoomMember, related_name='room', blank=True)
     slug = models.CharField('Slug', max_length=24, unique=True, null=True)
-    is_private = models.BooleanField('Is room private', default=False)
+    is_private = models.BooleanField('Сделать комнату приватной', default=False)
 
     def save(self, *args, **kwargs):
         try:

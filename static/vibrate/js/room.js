@@ -38,7 +38,6 @@ async function init() {
     copyLinkButton,
     {
       animation: true,
-      content: 'Link copied!'
     }
   )
   copyLinkButton.addEventListener('click', async () => {

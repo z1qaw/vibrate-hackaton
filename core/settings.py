@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # 3rd
     "rest_framework",
     "channels",
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -111,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ru-RU"
 
 TIME_ZONE = "UTC"
 
@@ -145,3 +146,5 @@ STATIC_URL = "/static/"
 # Extra places for collectstatic to find static files.
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 WHITENOISE_MANIFEST_STRICT = False
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

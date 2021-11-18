@@ -47,6 +47,7 @@ function fallbackCopyTextToClipboard(text) {
 
   document.body.removeChild(textArea);
 }
+
 function copyTextToClipboard(text) {
   if (!navigator.clipboard) {
     fallbackCopyTextToClipboard(text);
@@ -78,7 +79,7 @@ async function init() {
     copyLinkButton,
     {
       animation: true,
-      content: 'Link copied!',
+      content: 'Ссылка скопирована',
       delay: { hide: 100, show: 100 },
     }
   )
@@ -95,9 +96,6 @@ async function init() {
     console.log('on_close', e)
   }
   roomSocket.onmessage = (e) => {
-    // if (!usernameProvided) {
-    //   return
-    // }
     const data = JSON.parse(e.data)
     console.log('on_message', data)
     switch (data.action) {
@@ -113,6 +111,18 @@ async function init() {
         updateUsersList()
     }
   }
+
+  var roomStatusText = ''
+  switch (roomDetails.is_private) {
+    case true:
+      roomStatusText = 'Приватная комната'
+      break
+    case false:
+      roomStatusText = 'Публичная комната'
+      break
+
+  }
+  document.querySelector('#room-status').innerText = roomStatusText
 }
 
 var vibrationQueue = []
@@ -223,11 +233,3 @@ var splitedHref = window.location.href.split('?')
 if (splitedHref.length === 1) {
   roomEnterModal.show()
 }
-
-var noSleep = new NoSleep();
-var toggleSleep = document.createElement('button')
-toggleSleep.innerText = 'Sleep'
-toggleSleep.onclick = () => {
-  noSleep.enable();
-}
-document.querySelector('.container').appendChild(toggleSleep)

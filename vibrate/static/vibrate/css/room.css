@@ -36,3 +36,9 @@
 #copy-link-button:active {
   opacity: 100%;
 }
+
+#room-status {
+  padding-left: 20px;
+  padding-top: -20px;
+  opacity: 70%;
+}

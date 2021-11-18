@@ -19,9 +19,13 @@ function arraysEqual(a1, a2) {
   return JSON.stringify(a1) == JSON.stringify(a2);
 }
 
-var rooms = []
+var rooms = {
+  public: [],
+  private: []
+}
 var choosedRoom = null
-var roomsContainer = document.querySelector('#rooms-container')
+var publicRoomsContainer = document.querySelector('#public-rooms-container')
+var privateRoomsContainer = document.querySelector('#private-rooms-container')
 
 var roomEnterModalEl = document.getElementById('roomEnterModal')
 var roomEnterModal = new bootstrap.Modal(roomEnterModalEl, {
@@ -48,12 +52,12 @@ roomEnterModalEl.addEventListener('show.bs.modal', function (event) {
   modalTitle.textContent = 'Войти в комнату ' + choosedRoom.name
 })
 
-async function apiGetPublicRooms() {
-  var response = await fetch('/api/get_public_rooms')
+async function apiGetRooms() {
+  var response = await fetch('/api/get_rooms')
   return await response.json()
 }
 
-function setRooms() {
+function setRoomsToContainer(roomsContainer, rooms) {
   var containerChildren = []
   for (room of rooms) {
     var roomEl = document.createElement('li')
@@ -86,15 +90,27 @@ function setRooms() {
   }
 }
 
+function setAllRooms() {
+  setRoomsToContainer(publicRoomsContainer, rooms.public)
+
+  if (rooms.private.length > 0) {
+    setRoomsToContainer(privateRoomsContainer, rooms.private)
+  } else {
+    console.log('no private rooms')
+    privateRoomsContainer.innerText = 'У вас ещё нет приватных комнат. Хотите создать и позвать друзей?'
+  }
+
+}
+
 var init = async () => {
-  rooms = await apiGetPublicRooms()
-  setRooms()
+  rooms = await apiGetRooms()
+  setAllRooms()
 }
 
 init()
 
 setInterval(async () => {
-  var freshRooms = await apiGetPublicRooms()
+  var freshRooms = await apiGetRooms()
   if (!arraysEqual(freshRooms, rooms)) {
     console.log('not equel', rooms, freshRooms)
     rooms = freshRooms

@@ -10,9 +10,9 @@
 {% endblock title %}
 
 {% block content %}
-<h1 class="mt-3">Комнаты</h1>
+<h2 class="mt-4">Публичные комнаты</h2>
 
-<ul class="list-group" id="rooms-container">
+<ul class="list-group mt-3" id="public-rooms-container">
   <div class="ph-item">
     <div class="ph-row">
         <div class="ph-col-12"></div>
@@ -20,8 +20,18 @@
   </div>
 </ul>
 
-<div class="action-section mt-3">
-  <button type="button btn-block" class="btn btn-primary" style="width: 100%">Создать комнату</button>
+<h2 class="mt-4 mb-3">Ваши приватные комнаты</h2>
+
+<ul class="list-group" id="private-rooms-container">
+  <div class="ph-item">
+    <div class="ph-row">
+        <div class="ph-col-12"></div>
+    </div>
+  </div>
+</ul>
+
+<div class="action-section mt-4">
+  <a class="btn btn-primary" href="/create-room" style="width: 100%">Создать комнату</a>
 </div>
 
 <div class="modal fade" id="roomEnterModal" tabindex="-1" aria-labelledby="roomEnterModalLabel" aria-hidden="true">
