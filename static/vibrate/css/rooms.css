@@ -1,0 +1,7 @@
+li.room-card {
+    cursor: pointer
+}
+
+li.room-card:hover {
+    background-color: rgb(67, 157, 241, 0.1);
+}

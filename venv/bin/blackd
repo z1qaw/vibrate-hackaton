@@ -1,4 +1,4 @@
-#!/home/user/Projects/adventum-hakaton/venv/bin/python3.10
+#!/home/user/vibrate-hackaton/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

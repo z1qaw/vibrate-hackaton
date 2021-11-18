@@ -1,4 +1,4 @@
-#!/home/user/Projects/adventum-hakaton/venv/bin/python3.10
+#!/home/user/vibrate-hackaton/venv/bin/python3
 # When the django-admin.py deprecation ends, remove this script.
 import warnings
 
