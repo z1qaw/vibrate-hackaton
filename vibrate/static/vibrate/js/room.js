@@ -4,6 +4,24 @@ var roomDetails = {}
 var roomSocket = null
 var selfUser = {}
 var roomSlug = ''
+var usernameProvided = false
+
+
+async function postData(url = '', data = {}, csrf_token = null) {
+  var response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrf_token,
+    },
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+    body: JSON.stringify(data)
+  })
+}
 
 
 function fallbackCopyTextToClipboard(text) {
@@ -77,6 +95,9 @@ async function init() {
     console.log('on_close', e)
   }
   roomSocket.onmessage = (e) => {
+    // if (!usernameProvided) {
+    //   return
+    // }
     const data = JSON.parse(e.data)
     console.log('on_message', data)
     switch (data.action) {
@@ -88,6 +109,8 @@ async function init() {
         break
       case 'vibrate':
         vibrationQueue.push(data.user_id)
+      case 'change_nickname':
+        updateUsersList()
     }
   }
 }
@@ -165,3 +188,44 @@ sendVibrationButton.addEventListener('click', () => {
     }
   ))
 })
+
+var roomEnterModalEl = document.getElementById('roomEnterModal')
+var roomEnterModal = new bootstrap.Modal(roomEnterModalEl, {
+  keyboard: false
+})
+
+roomEnterModalEl.addEventListener('show.bs.modal', function (event) {
+  var modalEnterButton = roomEnterModalEl.querySelector('#enter_room_button')
+  var usernameInput = roomEnterModalEl.querySelector('#username')
+  var csrfToken = roomEnterModalEl.querySelector('input[name="csrfmiddlewaretoken"]').getAttribute('value')
+  modalEnterButton.addEventListener('click', async (e) => {
+    await postData('/api/set_roommember_nickname/', {
+      username: usernameInput.value
+    }, csrfToken)
+    roomSocket.send(JSON.stringify(
+      {
+        type: 'message',
+        user_id: selfUser.id,
+        action: 'change_nickname',
+        room_slug: roomDetails.slug,
+      }
+    ))
+    roomEnterModal.hide()
+  })
+  usernameInput.addEventListener('keyup', (e) => {
+    if (e.keyCode === 13) {
+      modalEnterButton.click()
+    }
+  })
+})
+
+var splitedHref = window.location.href.split('?')
+if (splitedHref.length === 1) {
+  roomEnterModal.show()
+}
+
+var toggleSleep = document.createElement('button')
+toggleSleep.innerText = 'Sleep'
+toggleSleep.onclick = () => {
+  noSleep.enable();
+}

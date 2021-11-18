@@ -37,7 +37,7 @@ roomEnterModalEl.addEventListener('show.bs.modal', function (event) {
     await postData('/api/set_roommember_nickname/', {
       username: usernameInput.value
     }, csrfToken)
-    window.location.replace(`room/${choosedRoom.slug}`)
+    window.location.replace(`room/${choosedRoom.slug}?from=catalog`)
   })
   usernameInput.addEventListener('keyup', (e) => {
     if (e.keyCode === 13) {
