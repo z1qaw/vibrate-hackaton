@@ -6,17 +6,39 @@ var selfUser = {}
 var roomSlug = ''
 
 
-function copyToClipboard(elementId) {
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
 
+  // Avoid scrolling to bottom
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
 
-  var aux = document.createElement("input");
-  aux.setAttribute("value", document.getElementById(elementId).innerHTML);
-  document.body.appendChild(aux);
-  aux.select();
-  document.execCommand("copy");
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
 
-  document.body.removeChild(aux);
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
 
+  document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function () {
+    console.log('Async: Copying to clipboard was successful!');
+  }, function (err) {
+    console.error('Async: Could not copy text: ', err);
+  });
 }
 
 
@@ -33,17 +55,23 @@ async function init() {
     `${ws_scheme}://${window.location.host}/ws/room/${roomDetails.slug}/`
   )
 
-  copyLinkButton = document.querySelector('#copy-link-button')
-  new bootstrap.Popover(
+  var copyLinkButton = document.querySelector('#copy-link-button')
+  var copyLinkPopover = new bootstrap.Popover(
     copyLinkButton,
     {
       animation: true,
-      content: 'Link copied!'
+      content: 'Link copied!',
+      delay: { hide: 100, show: 100 },
     }
   )
+
   copyLinkButton.addEventListener('click', async () => {
-    await navigator.clipboard.writeText(window.location.href)
+    copyTextToClipboard(window.location.href)
+    setTimeout(() => {
+      copyLinkPopover.hide()
+    }, 3000)
   })
+
 
   roomSocket.onclose = (e) => {
     console.log('on_close', e)
@@ -70,6 +98,7 @@ var vibrationQueue = []
 
 function showUserVibration(userId) {
   const userElement = document.querySelector(`li.user-card[userId="${userId}"]`)
+  // Анимируем элемент юзера
   userElement.animate(
     [
       { backgroundColor: 'rgb(255, 255, 255)' },
@@ -82,6 +111,8 @@ function showUserVibration(userId) {
       iterations: 2
     }
   )
+  // Вибрируем
+  window.navigator.vibrate([180, 30, 180])
 }
 
 setInterval(async () => {
