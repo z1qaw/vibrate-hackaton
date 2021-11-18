@@ -224,8 +224,10 @@ if (splitedHref.length === 1) {
   roomEnterModal.show()
 }
 
+var noSleep = new NoSleep();
 var toggleSleep = document.createElement('button')
 toggleSleep.innerText = 'Sleep'
 toggleSleep.onclick = () => {
   noSleep.enable();
 }
+document.querySelector('.container').appendChild(toggleSleep)
